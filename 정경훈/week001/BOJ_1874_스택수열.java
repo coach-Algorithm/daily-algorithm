@@ -32,7 +32,7 @@ public class BOJ_1874_스택수열 {
                 break;
             }
         }
-
+        // 출력
         if(ok){
             System.out.println(sb.toString());
         }else{

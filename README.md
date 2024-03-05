@@ -11,8 +11,8 @@
 
 ## 📁 Repository 폴더 구조
 
-- Github ID/주차/소스코드(플랫폼, 문제 번호와 제목 명시)
-- `sojeong025/week_001/BOJ_1000_A+B.py`
+- 이름/주차/소스코드(플랫폼, 문제 번호와 제목 명시)
+- `정소정/week001/BOJ_1000_A+B.py`
 
 <br/>
 
@@ -22,7 +22,7 @@
 - description: 문제 주소 (option)
 - 터미널에서 작성법:
 ```
-git commit -m "[BOJ] Hello World / 브론즈5 / 1분" -m "https://www.acmicpc.net/problem/2557"
+git commit -m "[BOJ] Hello World / 브론즈5" -m "https://www.acmicpc.net/problem/2557"
 ```
 - 플랫폼 작성법 통일:
   - [BOJ] - 백준

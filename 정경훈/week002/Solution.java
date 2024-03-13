@@ -92,7 +92,7 @@ class Solution {
 
     public static void main(String[] args) throws Exception {
         int T, MARK;
-        //System.setIn(new java.io.FileInputStream("res/sample_input.txt"));
+        System.setIn(new java.io.FileInputStream("sample_input.txt"));
         sc = new Scanner(System.in);
 
         T = sc.nextInt();

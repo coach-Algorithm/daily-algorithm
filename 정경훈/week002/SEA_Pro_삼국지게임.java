@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class UserSolution {
+public class SEA_Pro_삼국지게임 {
     static int n;
     static int[][] map;
     static int[][] allyMap;
@@ -55,12 +55,12 @@ public class UserSolution {
         int relB = find(idxB);
 
         if(relA == relB) {
-            System.out.println(-1);
+//            System.out.println(-1);
             return -1;
         }
 
         if(enemy[relA][relB] == 1) {
-            System.out.println(-2);
+//            System.out.println(-2);
             return -2;
         }
 
@@ -73,7 +73,7 @@ public class UserSolution {
         }else{
             syncEnemy(relA, relB);
         }
-        System.out.println(1);
+//        System.out.println(1);
         return 1;
     }
 
@@ -102,7 +102,7 @@ public class UserSolution {
         int relB = find(idxB);
 
         if(relA == relB) {
-            System.out.println(-1);
+//            System.out.println(-1);
             return -1;
         }
 
@@ -138,12 +138,11 @@ public class UserSolution {
 
         // 공격 병력이 없다 == 인접해 있지 않다.
         if(!isAttack) {
-            System.out.println(-2);
+//            System.out.println(-2);
             return -2;
         }
 
         // 공격 시작
-
         // 방어 병력 빼기
         for(int i=0;i<listB.size();i++){
             int node = listB.get(i);
@@ -153,14 +152,16 @@ public class UserSolution {
             map[ny][nx] -= map[ny][nx]/2;
         }
 
+        // A동맹과 B동맹은 적대
+        enemy[relA][relB] = 1;
+        enemy[relB][relA] = 1;
+
         // 서로의 병력 비교
         // 공격을 실패한 경우
         if(sumB >= sumA){
-            // A동맹과 B동맹은 적대
-            enemy[relA][relB] = 1;
-            enemy[relB][relA] = 1;
+
             map[y][x] = sumB - sumA;
-            System.out.println(0);
+//            System.out.println(0);
             return 0;
         }
 
@@ -171,14 +172,28 @@ public class UserSolution {
             int newParents = -1;
             for(int i=0;i<n*n;i++){
                 if(i == idxB) continue;
-                if(parents[i] == idxB){
-                    if(newParents == -1){
+                if(parents[i] == idxB) {
+                    if (newParents == -1) {
                         newParents = i;
                     }
                     parents[i] = newParents;
                 }
             }
-        }else{
+            // 혼자만 동맹이었을 경우
+            if(newParents == -1){
+                for (int i=0;i<n*n;i++){
+                    enemy[idxB][i] = 0;
+                    enemy[i][idxB] = 0;
+                }
+            }else{
+                syncEnemy(idxB, newParents);
+                enemy[relA][newParents] = 1;
+                enemy[newParents][relA] = 1;
+                enemy[relA][idxB] = 0;
+
+            }
+
+        }else{ // 최상위가 아니면 어짜피 비어있음.
             for(int i=0;i<n*n;i++){
                 if(parents[i] == idxB){
                     parents[i] = parents[idxB];
@@ -186,13 +201,18 @@ public class UserSolution {
             }
         }
         parents[idxB] = idxB;
-        union(idxB, idxA);
+        union(idxB, relA);
+
+        if(relA > idxB){
+            syncEnemy(relA, idxB);
+        }
 
         monarches.remove(B);
         monarches.put(G, idxB);
 
+
         map[y][x] = sumA - sumB;
-        System.out.println(1);
+//        System.out.println(1);
         return 1;
     }
     int recruit(char mMonarch[], int mNum, int mOption)
@@ -202,23 +222,23 @@ public class UserSolution {
         int idxM = monarches.get(M);
 
         if(mOption == 0){
-//            System.out.println("원래는 이거다" + map[idxM/n][idxM%n]);
+////            System.out.println("원래는 이거다" + map[idxM/n][idxM%n]);
             map[idxM/n][idxM%n] += mNum;
-//            System.out.println("더한다" + map[idxM/n][idxM%n]);
-            System.out.println(map[idxM/n][idxM%n]);
+////            System.out.println("더한다" + map[idxM/n][idxM%n]);
+//            System.out.println(map[idxM/n][idxM%n]);
             return map[idxM/n][idxM%n];
         }else{
             int sum = 0;
             int relM = find(idxM);
             for (int i=0;i<n*n;i++){
                 if(find(i) == relM){
-//                    System.out.println("원래 이랬어" + map[i/n][i%n]);
+////                    System.out.println("원래 이랬어" + map[i/n][i%n]);
                     map[i/n][i%n] += mNum;
-//                    System.out.println("더한다" + map[i/n][i%n]);
+////                    System.out.println("더한다" + map[i/n][i%n]);
                     sum += map[i/n][i%n];
                 }
             }
-            System.out.println(sum);
+//            System.out.println(sum);
             return sum;
         }
     }

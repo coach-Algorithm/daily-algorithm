@@ -1,57 +1,58 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
-import java.util.Queue;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class BOJ_12100_2048easy {
     static int N, max;
-    static int[][][][] map;
+    static List<int[][]> map;
 
-    static int[] dy = {0, -1, 1, 0, 0};
-    static int[] dx = {0, 0, 0, -1, 1};
     public static void main(String[] args) throws Exception{
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         N = Integer.parseInt(br.readLine());
         max = 0;
         // 횟수
-        map = new int[6][5][N+2][N+2];
+        map = new ArrayList<>();
+        int[][] initMap = new int[N+2][N+2];
 
         for (int i=1;i<=N;i++){
             StringTokenizer st = new StringTokenizer(br.readLine());
             for (int j=1;j<=N;j++){
                 int a = Integer.parseInt(st.nextToken());
                 if(max < a) max = a;
-                map[0][0][i][j] = a;
+                initMap[i][j] = a;
             }
         }
 
+        map.add(initMap);
+
         Queue<Node> q = new ArrayDeque<>();
         q.add(new Node(0, 0));
-
+        int ID = 0;
         while (!q.isEmpty()){
             Node node = q.poll();
 
             if (node.cnt >= 5){
                 continue;
             }
-
+            int id = node.id;
+//            System.out.println("id : " + id + "시작");
             for (int i=1;i<5;i++){
                 switch (i){
                     case 1:
-                        up(node.cnt, node.preD);
+                        up(id);
                         break;
                     case 2:
-                        down(node.cnt, node.preD);
+                        down(id);
                         break;
                     case 3:
-                        left(node.cnt, node.preD);
+                        left(id);
                         break;
                     case 4:
-                        right(node.cnt, node.preD);
+                        right(id);
                         break;
                 }
-                q.add(new Node(i, node.cnt+1));
+//                System.out.println("횟수 : " + (node.cnt+1) + " id : " + (map.size()-1));
+                q.add(new Node(node.cnt+1, map.size()-1));
             }
 
         }
@@ -61,171 +62,152 @@ public class BOJ_12100_2048easy {
 
     }
 
-    static void up(int cnt, int preD){
-        System.out.println("up 전 : ");
-        for (int i=1;i<=N;i++){
-            for (int j=1;j<=N;j++){
-                System.out.print(map[cnt][preD][i][j]);
-            }
-            System.out.println();
-        }
+    static void up(int id){
+
+        int[][] preMap = map.get(id);
+
+        int[][] newMap = new int[N+2][N+2];
+        boolean[][] merged = new boolean[N+2][N+2];
         for (int i=1;i<=N;i++){
             // 한 라인 : 세로
             // 채워질 때마다 1씩 증가
             int idx = 1;
             for (int j=1;j<=N;j++){
-                if(map[cnt][preD][j][i] != 0){
+                if(preMap[j][i] != 0){
                     // 빈칸이 아닌 경우 올릴 수 있을 때 까지 올리기
-                    map[cnt+1][1][idx][i] = map[cnt][preD][j][i];
-                    if(map[cnt+1][1][idx-1][i] == map[cnt+1][1][idx][i]){
-                        map[cnt+1][1][idx-1][i] *= 2;
-                        if (max < map[cnt+1][1][idx-1][i]) {
-                            max = map[cnt+1][1][idx-1][i];
-                            System.out.println(cnt + " up " + max);
+                    newMap[idx][i] = preMap[j][i];
+                    if(merged[idx-1][i]) {
+                        idx++;
+                        continue;
+                    }
+                    if(newMap[idx-1][i] == newMap[idx][i]){
+                        newMap[idx-1][i] *= 2;
+                        merged[idx-1][i] = true;
+                        if (max < newMap[idx-1][i]) {
+                            max = newMap[idx-1][i];
                         }
-                        map[cnt+1][1][idx][i] = 0;
+                        newMap[idx][i] = 0;
                     }else{ // 다른 값인 경우 idx++
                         idx++;
                     }
                 }
             }
         }
-        System.out.println("후 : ");
-        for (int i=1;i<=N;i++){
-            for (int j=1;j<=N;j++){
-                System.out.print(map[cnt+1][1][i][j]);
-            }
-            System.out.println();
-        }
+
+        map.add(newMap);
     }
 
-    static void down(int cnt, int preD){
-        System.out.println("down 전 : ");
-        for (int i=1;i<=N;i++){
-            for (int j=1;j<=N;j++){
-                System.out.print(map[cnt][preD][i][j]);
-            }
-            System.out.println();
-        }
+    static void down(int id){
+        int[][] preMap = map.get(id);
+
+        int[][] newMap = new int[N+2][N+2];
+        boolean[][] merged = new boolean[N+2][N+2];
         for (int i=1;i<=N;i++){
             // 한 라인 : 세로
             // 채워질 때마다 1씩 증가
             int idx = N;
             for (int j=N;j>=1;j--){
-                if(map[cnt][preD][j][i] == 0){
-                    continue;
-                } else {
-                    // 빈칸이 아닌 경우 내릴 수 있을 때까지 내리기
-                    map[cnt+1][2][idx][i] = map[cnt][preD][j][i];
-                    if(map[cnt+1][2][idx+1][i] == map[cnt+1][2][idx][i]){
-                        map[cnt+1][2][idx+1][i] *= 2;
-                        if (max < map[cnt+1][2][idx+1][i]) {
-                            max = map[cnt+1][2][idx+1][i];
-                            System.out.println(cnt + " down " + max);
+                if(preMap[j][i] != 0){
+                    // 빈칸이 아닌 경우 올릴 수 있을 때 까지 올리기
+                    newMap[idx][i] = preMap[j][i];
+                    if(merged[idx+1][i]) {
+                        idx--;
+                        continue;
+                    }
+                    if(newMap[idx+1][i] == newMap[idx][i]){
+                        newMap[idx+1][i] *= 2;
+                        merged[idx+1][i] = true;
+                        if (max < newMap[idx+1][i]) {
+                            max = newMap[idx+1][i];
                         }
-                        map[cnt+1][2][idx][i] = 0;
-                    }else{ // 다른 값인 경우 idx--
+                        newMap[idx][i] = 0;
+                    }else{ // 다른 값인 경우 idx++
                         idx--;
                     }
                 }
             }
         }
-        System.out.println("후 : ");
-        for (int i=1;i<=N;i++){
-            for (int j=1;j<=N;j++){
-                System.out.print(map[cnt+1][2][i][j]);
-            }
-            System.out.println();
-        }
+
+        map.add(newMap);
+
     }
 
-    static void left(int cnt, int preD){
-        System.out.println("left 전 : ");
-        for (int i=1;i<=N;i++){
-            for (int j=1;j<=N;j++){
-                System.out.print(map[cnt][preD][i][j]);
-            }
-            System.out.println();
-        }
+    static void left(int id){
+        int[][] preMap = map.get(id);
+
+        int[][] newMap = new int[N+2][N+2];
+        boolean[][] merged = new boolean[N+2][N+2];
         for (int i=1;i<=N;i++){
             // 한 라인 : 가로
             // 채워질 때마다 1씩 증가
             int idx = 1;
             for (int j=1;j<=N;j++){
-                if(map[cnt][preD][i][j] == 0){
-                    continue;
-                } else {
+                if(preMap[i][j] != 0){
                     // 빈칸이 아닌 경우 올릴 수 있을 때 까지 올리기
-                    map[cnt+1][3][i][idx] = map[cnt][preD][i][j];
-                    if(map[cnt+1][3][i][idx-1] == map[cnt+1][3][i][idx]){
-                        map[cnt+1][3][i][idx-1] *= 2;
-                        if (max < map[cnt+1][3][i][idx-1]){
-                            max = map[cnt+1][3][i][idx-1];
-                            System.out.println(cnt + " left " + max);
+                    newMap[i][idx] = preMap[i][j];
+                    if(merged[i][idx-1]) {
+                        idx++;
+                        continue;
+                    }
+                    if(newMap[i][idx-1] == newMap[i][idx]){
+                        newMap[i][idx-1] *= 2;
+                        merged[i][idx-1] = true;
+                        if (max < newMap[i][idx-1]) {
+                            max = newMap[i][idx-1];
                         }
-                        map[cnt+1][3][i][idx] = 0;
+                        newMap[i][idx] = 0;
                     }else{ // 다른 값인 경우 idx++
                         idx++;
                     }
                 }
             }
         }
-        System.out.println("후 : ");
-        for (int i=1;i<=N;i++){
-            for (int j=1;j<=N;j++){
-                System.out.print(map[cnt+1][3][i][j]);
-            }
-            System.out.println();
-        }
+
+        map.add(newMap);
     }
 
-    static void right(int cnt, int preD){
-        System.out.println("right 전 : ");
-        for (int i=1;i<=N;i++){
-            for (int j=1;j<=N;j++){
-                System.out.print(map[cnt][preD][i][j]);
-            }
-            System.out.println();
-        }
+    static void right(int id){
+        int[][] preMap = map.get(id);
+
+        int[][] newMap = new int[N+2][N+2];
+        boolean[][] merged = new boolean[N+2][N+2];
         for (int i=1;i<=N;i++){
             // 한 라인 : 가로
             // 채워질 때마다 1씩 증가
             int idx = N;
+
             for (int j=N;j>=1;j--){
-                if(map[cnt][preD][i][j] == 0){
-                    continue;
-                } else {
+                if(preMap[i][j] != 0){
                     // 빈칸이 아닌 경우 올릴 수 있을 때 까지 올리기
-                    map[cnt+1][4][i][idx] = map[cnt][preD][i][j];
-                    if(map[cnt+1][4][i][idx+1] == map[cnt+1][4][i][idx]){
-                        map[cnt+1][4][i][idx+1] *= 2;
-                        if (max < map[cnt+1][4][i][idx+1]){
-                            max = map[cnt+1][4][i][idx+1];
-                            System.out.println(cnt + " right " + max);
+                    newMap[i][idx] = preMap[i][j];
+                    if(merged[i][idx+1]) {
+                        idx--;
+                        continue;
+                    }
+                    if(newMap[i][idx+1] == newMap[i][idx]){
+                        newMap[i][idx+1] *= 2;
+                        merged[i][idx+1] = true;
+                        if (max < newMap[i][idx+1]) {
+                            max = newMap[i][idx+1];
                         }
-                        map[cnt+1][4][i][idx] = 0;
-                    }else{ // 다른 값인 경우 idx--
+                        newMap[i][idx] = 0;
+                    }else{ // 다른 값인 경우 idx++
                         idx--;
                     }
                 }
             }
         }
-        System.out.println("후 : ");
-        for (int i=1;i<=N;i++){
-            for (int j=1;j<=N;j++){
-                System.out.print(map[cnt+1][4][i][j]);
-            }
-            System.out.println();
-        }
+
+        map.add(newMap);
     }
 
     static class Node{
-        int preD; // 이전 이동 방향
         int cnt; // 이동 횟수
+        int id; // 이전 작품이 담긴 id
 
-        public Node(int preD, int cnt){
-            this.preD = preD;
+        public Node(int cnt, int id){
             this.cnt = cnt;
+            this.id = id;
         }
 
     }
